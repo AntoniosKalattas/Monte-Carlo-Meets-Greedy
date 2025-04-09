@@ -1,3 +1,4 @@
+#include <limits.h>
 #include<stdio.h>
 #include<pthread.h>
 #include <stdlib.h>
@@ -27,6 +28,7 @@ void* alg4(void*);  //
 int *algorithm1(int ,int ,int ,int , int **);                   //
 int* algorithm1Rec(int , int , int , int, int **, int , int *); //
 int* algorithm2Rec(int , int , int , int, int **, int , int *); //
+int* algorithm3Rec(int,int,int,int,int **,int,int *);           //
 //////////////////////////////////////////////////////////////////
 
 
@@ -39,7 +41,10 @@ int swapNumbers(int*,int,int);                  //
 int clearArrays(int **, int, int,int, int);     //
 int criticalNumber(int *,int **,int,int);       //
 void disp(int *, int);                          //
+int smallerSubSet(int **,int,int);              //
 //////////////////////////////////////////////////
+
+
 typedef struct{
     int n,m,c,k;
     int *set;
@@ -101,17 +106,21 @@ int main(){
             printf("%d ",args->subsets[i][j]);
         printf("");
     }
-    printf("\nHitting Set:\n");
+    printf("\nHitting Set1:\n");
     for(int i=0;i<args->k;i++){
          printf("%d ", set1[i]);
+    }
+    printf("\nHitting Set2:\n");
+    for(int i=0;i<args->k;i++){
+         printf("%d ", set2[i]);
     }
     if(flag){
         fclose(fp);
         free(args);
     }
     free(set1);
+    free(set2);
 }
-
 
 void* alg1(void* args){
     Args *arg = (Args *)args;
@@ -139,11 +148,24 @@ void* alg2(void* args){
 
     algorithm2Rec(arg->n, arg->m, arg->c, arg->k, cpyArr, 0, rtrnSet);
 
-
+    for(int i=0;i<arg->m;i++) free(cpyArr[i]);                                                  //free the allocated space.
+    free(cpyArr);
     return rtrnSet;
 }
 void* alg3(void* args){
-    return NULL;
+    Args *arg = (Args *)args;
+    int **cpyArr = malloc(arg->m*sizeof(int*));                                                 //copy the array since we are going to be making changes to it.
+    for(int i =0;i<arg->m;i++)cpyArr[i] = malloc(arg->c*sizeof(int));                           //allocate space.
+    for(int i=0;i<arg->m;i++){for(int j=0;j<arg->c;j++) cpyArr[i][j] = arg->subsets[i][j];}     //copy each element.
+
+    int *rtrnSet = (int *)malloc(arg->k*sizeof(int));                                           //the returned hitting set.
+    for(int i =0;i<arg->k;i++)rtrnSet[i] = 0;                                                   //set all to 0.
+
+    algorithm3Rec(arg->n, arg->m, arg->c, arg->k, cpyArr, 0, rtrnSet);
+
+    for(int i=0;i<arg->m;i++) free(cpyArr[i]);                                                  //free the allocated space.
+    free(cpyArr);
+    return rtrnSet;
 }
 void* alg4(void* args){
     return NULL;
@@ -196,7 +218,7 @@ int* algorithm1Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
 }
 
 // Todo
-// [ ]Implement Recursion.
+// [x]Implement Recursion.
 // [x] Find critical Number.
 int* algorithm2Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet){
     if(rtrnIndex>=k){
@@ -215,8 +237,40 @@ int* algorithm2Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
     int random = (m>1)?(rand_r(&seed)%m):0;
 
     int *randomSet = swapArrays(subSets, random, validSubSets-1);           //swap the randomly selected SUB-SET with the lowest one.
-    disp(randomSet,c);
-    printf("crit: %d----------------------\n",randomSet[criticalNumber(randomSet,subSets,validSubSets,c)]);
+
+    int criticalIndex = criticalNumber(randomSet,subSets,validSubSets,c);
+
+    int criticalElement = randomSet[criticalIndex];
+    rtrnSet[rtrnIndex] = criticalElement;                                                 //add the element to the hitting set.
+
+    int *result = algorithm1Rec(n, clearArrays(subSets, criticalElement, validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet);       // try to find the next element from what its left.
+
+    if(result!=NULL)
+        return result;
+
+    return NULL;
+}
+
+// Todo
+// []Implement Recursion.
+// [x] Find smallest length subset..
+int* algorithm3Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet){
+    if(rtrnIndex>=k){
+        printf("Re: rtr %d m %d k %d\n", rtrnIndex, m, k);
+        if(isHittingSet(rtrnSet,subSets,m,c))
+            return rtrnSet;
+        return NULL;
+    }
+    if(m<=0){
+        printf("No more subsets: rtr %d m %d k %d\n", rtrnIndex, m, k);
+        return NULL;
+    }
+
+    int validSubSets = m;
+
+    printf("smallest subset is\n");
+    int smallestIndex = smallerSubSet(subSets, validSubSets,c);
+    disp(subSets[smallestIndex], c);
 
     return NULL;
 }
@@ -330,4 +384,16 @@ int criticalNumber(int *arr,int **subSets,int availableSubSets, int c){
     }
     free(counts);
     return bestIndex; // Return the critical number, not just its index
+}
+
+int smallerSubSet(int **subSets, int availableSubSets, int c){
+    int smallestIndex=0;
+    int smallestLength = INT_MAX;
+    for(int i=0;i<availableSubSets;i++){
+        if(length(subSets[i], c)<smallestLength){
+            smallestIndex = i;
+            smallestLength = length(subSets[i],c);
+        }
+    }
+    return smallestIndex;
 }
