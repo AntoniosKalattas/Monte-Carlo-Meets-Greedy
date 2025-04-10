@@ -24,12 +24,12 @@ void* alg4(void*);  //
 //////////////////////
 
 
-//Algorithm Implementation////////////////////////////////////////
-int *algorithm1(int ,int ,int ,int , int **);                   //
-int* algorithm1Rec(int , int , int , int, int **, int , int *); //
-int* algorithm2Rec(int , int , int , int, int **, int , int *); //
-int* algorithm3Rec(int,int,int,int,int **,int,int *);           //
-//////////////////////////////////////////////////////////////////
+//Algorithm Implementation/////////////////////////////////////////
+int* algorithm1Rec(int , int , int , int , int **, int , int *); //
+int* algorithm2Rec(int , int , int , int , int **, int , int *); //
+int* algorithm3Rec(int , int , int , int , int **, int , int *); //
+int* algorithm4Rec(int , int , int , int , int **, int , int *); //
+///////////////////////////////////////////////////////////////////
 
 
 //Helper Methods//////////////////////////////////
@@ -39,7 +39,7 @@ int length(int *, int);                         //
 int* swapArrays(int **,int,int);                //
 int swapNumbers(int*,int,int);                  //
 int clearArrays(int **, int, int,int, int);     //
-int criticalNumber(int *,int **,int,int);       //
+int criticalNumber(int *,int,int **,int,int);   //
 void disp(int *, int);                          //
 int smallerSubSet(int **,int,int);              //
 //////////////////////////////////////////////////
@@ -114,12 +114,22 @@ int main(){
     for(int i=0;i<args->k;i++){
          printf("%d ", set2[i]);
     }
+    printf("\nHitting Set3:\n");
+    for(int i=0;i<args->k;i++){
+         printf("%d ", set3[i]);
+    }
+    printf("\nHitting Set4:\n");
+    for(int i=0;i<args->k;i++){
+         printf("%d ", set4[i]);
+    }
     if(flag){
         fclose(fp);
         free(args);
     }
     free(set1);
     free(set2);
+    free(set3);
+    free(set4);
 }
 
 void* alg1(void* args){
@@ -168,7 +178,19 @@ void* alg3(void* args){
     return rtrnSet;
 }
 void* alg4(void* args){
-    return NULL;
+    Args *arg = (Args *)args;
+    int **cpyArr = malloc(arg->m*sizeof(int*));                                                 //copy the array since we are going to be making changes to it.
+    for(int i =0;i<arg->m;i++)cpyArr[i] = malloc(arg->c*sizeof(int));                           //allocate space.
+    for(int i=0;i<arg->m;i++){for(int j=0;j<arg->c;j++) cpyArr[i][j] = arg->subsets[i][j];}     //copy each element.
+
+    int *rtrnSet = (int *)malloc(arg->k*sizeof(int));                                           //the returned hitting set.
+    for(int i =0;i<arg->k;i++)rtrnSet[i] = 0;                                                   //set all to 0.
+
+    algorithm4Rec(arg->n, arg->m, arg->c, arg->k, cpyArr, 0, rtrnSet);
+
+    for(int i=0;i<arg->m;i++) free(cpyArr[i]);                                                  //free the allocated space.
+    free(cpyArr);
+    return rtrnSet;
 }
 
 // TODO
@@ -176,7 +198,7 @@ void* alg4(void* args){
 // [x] we never added an element in rtrnSet.
 int* algorithm1Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet){
     if(rtrnIndex>=k){
-        printf("Re: rtr %d m %d k %d\n", rtrnIndex, m, k);
+        // printf("Re: rtr %d m %d k %d\n", rtrnIndex, m, k);
         if(isHittingSet(rtrnSet,subSets,m,c))
             return rtrnSet;
         return NULL;
@@ -222,7 +244,6 @@ int* algorithm1Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
 // [x] Find critical Number.
 int* algorithm2Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet){
     if(rtrnIndex>=k){
-        printf("Re: rtr %d m %d k %d\n", rtrnIndex, m, k);
         if(isHittingSet(rtrnSet,subSets,m,c))
             return rtrnSet;
         return NULL;
@@ -232,48 +253,114 @@ int* algorithm2Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
         return NULL;
     }
     int validSubSets = m;
-    unsigned int seed = time(NULL) ^ (unsigned long)pthread_self();         //os based. If linux try "unsigned int seed = time(NULL) ^ pthread_self();"
+    unsigned int seed = time(NULL) ^ (unsigned long)pthread_self();                             //os based. If linux try "unsigned int seed = time(NULL) ^ pthread_self();"
 
     int random = (m>1)?(rand_r(&seed)%m):0;
 
-    int *randomSet = swapArrays(subSets, random, validSubSets-1);           //swap the randomly selected SUB-SET with the lowest one.
+    int *randomSet = swapArrays(subSets, random, validSubSets-1);                               //swap the randomly selected SUB-SET with the lowest one.
+    int validNumbers = length(randomSet, c);
+    while(validNumbers>0){
+        int criticalIndex = criticalNumber(randomSet,validNumbers,subSets,validSubSets,c);      // find the critical number in the randomly selected subset.
 
-    int criticalIndex = criticalNumber(randomSet,subSets,validSubSets,c);
+        int criticalElement = swapNumbers(randomSet, criticalIndex, validNumbers-1);              // swap the most critical elemen, make it invalid.
 
-    int criticalElement = randomSet[criticalIndex];
-    rtrnSet[rtrnIndex] = criticalElement;                                                 //add the element to the hitting set.
+        rtrnSet[rtrnIndex] = criticalElement;                                                   //add the element to the hitting set.
+        int *result = algorithm2Rec(n, clearArrays(subSets, criticalElement, validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet);       // try to find the next element from what its left.
 
-    int *result = algorithm1Rec(n, clearArrays(subSets, criticalElement, validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet);       // try to find the next element from what its left.
-
-    if(result!=NULL)
-        return result;
-
+        if(result!=NULL)
+            return result;
+        validNumbers--;                                                                         // decrese the valid number, loop to find the next critical number.
+    }
     return NULL;
 }
 
 // Todo
-// []Implement Recursion.
+// [x]Implement Recursion.
 // [x] Find smallest length subset..
 int* algorithm3Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet){
     if(rtrnIndex>=k){
-        printf("Re: rtr %d m %d k %d\n", rtrnIndex, m, k);
         if(isHittingSet(rtrnSet,subSets,m,c))
             return rtrnSet;
         return NULL;
     }
-    if(m<=0){
-        printf("No more subsets: rtr %d m %d k %d\n", rtrnIndex, m, k);
+    if(m<=0)
         return NULL;
-    }
-
     int validSubSets = m;
+    while(validSubSets>0){
+        unsigned int seed = time(NULL) ^ (unsigned long)pthread_self();         //os based. If linux try "unsigned int seed = time(NULL) ^ pthread_self();"
 
-    printf("smallest subset is\n");
-    int smallestIndex = smallerSubSet(subSets, validSubSets,c);
-    disp(subSets[smallestIndex], c);
+        int random = (m>1)?(rand_r(&seed)%m):0;
+        int smallestSetIndex = smallerSubSet(subSets, validSubSets, c);
+        int *randomSet = swapArrays(subSets, smallestSetIndex, validSubSets-1);           //swap the randomly selected SUB-SET with the lowest one.
+        random = rand_r(&seed) % (length(randomSet, c));
+        int validNumbers = length(randomSet, c);
+        if(validNumbers<=0)
+            return NULL; // No valid elements to choose from
 
+        while(validNumbers>0){
+            // Select a random element
+            random = rand_r(&seed) % validNumbers;
+            int randomElement = swapNumbers(randomSet, random, validNumbers - 1);
+            validNumbers--;
+
+            rtrnSet[rtrnIndex] = randomElement;                                                 //add the element to the hitting set.
+
+            int *result = algorithm3Rec(n, clearArrays(subSets, randomElement, validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet);       // try to find the next element from what its left.
+
+            if(result != NULL){
+                if(isHittingSet(result, subSets, m, c))
+                    return result; // Found a valid hitting set
+                else return NULL;;
+            }
+            //this means that the element didn't work
+            rtrnSet[rtrnIndex] = 0; // Clear the element.
+        }
+        validSubSets--;
+    }
+    printf("faild\n");
     return NULL;
 }
+int* algorithm4Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet){
+    if(rtrnIndex>=k){
+        if(isHittingSet(rtrnSet,subSets,m,c))
+            return rtrnSet;
+        return NULL;
+    }
+    if(m<=0)
+        return NULL;
+    int validSubSets = m;
+    while(validSubSets>0){
+        unsigned int seed = time(NULL) ^ (unsigned long)pthread_self();         //os based. If linux try "unsigned int seed = time(NULL) ^ pthread_self();"
+
+        int random = (m>1)?(rand_r(&seed)%m):0;
+        int smallestSetIndex = smallerSubSet(subSets, validSubSets, c);
+        int *randomSet = swapArrays(subSets, smallestSetIndex, validSubSets-1);           //swap the randomly selected SUB-SET with the lowest one.
+        random = rand_r(&seed) % (length(randomSet, c));
+        int validNumbers = length(randomSet, c);
+        if(validNumbers<=0)
+            return NULL; // No valid elements to choose from
+
+        while(validNumbers>0){
+            int criticalIndex = criticalNumber(randomSet,validNumbers,subSets,validSubSets,c);      // find the critical number in the randomly selected subset.
+
+            int criticalElement = swapNumbers(randomSet, criticalIndex, validNumbers-1);              // swap the most critical elemen, make it invalid.
+
+            rtrnSet[rtrnIndex] = criticalElement;                                                   //add the element to the hitting set.
+            int *result = algorithm4Rec(n, clearArrays(subSets, criticalElement, validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet);       // try to find the next element from what its left.
+
+            if(result!=NULL){
+                if(isHittingSet(result, subSets, m, c))
+                    return result;
+                else return NULL;
+            }
+            validNumbers--;                                                                         // decrese the valid number, loop to find the next critical number.
+        }
+        validSubSets--;
+    }
+    printf("faild\n");
+    return NULL;
+}
+
 
 /*
 Debugging Method, Used to display the 2d array with the subsets.
@@ -358,9 +445,8 @@ void disp(int *arr, int c){
     for(int i =0;i<c;i++) printf("%d ",arr[i] );
     printf("\n");
 }
-
 //Given a subSet will find and return the index of the most commond number to other subsets.
-int criticalNumber(int *arr,int **subSets,int availableSubSets, int c){
+int criticalNumber(int *arr, int lengthOfarr,int **subSets,int availableSubSets,int c){
     // Track count of each element in arr
     int *counts = (int*)malloc(length(arr,c)*sizeof(int));
     for(int i=0;i<length(arr,c);i++){
