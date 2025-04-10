@@ -33,7 +33,7 @@ int* algorithm4Rec(int , int , int , int , int **, int , int *); //
 
 
 //Helper Methods//////////////////////////////////
-bool isHittingSet(int *, int **, int, int);     //
+bool isHittingSet(int *,int, int **, int, int); //
 void printT(int **, int, int);                  //
 int length(int *, int);                         //
 int* swapArrays(int **,int,int);                //
@@ -64,8 +64,11 @@ int main(){
         fscanf(fp, "%d %d %d %d",&args->n,&args->m,&args->c,&args->k);
         args->set = malloc(args->n*(sizeof(int)));
         args->subsets = malloc(args->m*sizeof(int*));
-        for(int i =0;i<args->m;i++)
+        for(int i =0;i<args->m;i++){
             args->subsets[i] = malloc(args->c*sizeof(int));
+            for(int j=0;j<args->c;j++)
+                args->subsets[i][j] = 0;
+        }
         int i=0, j=0;
         for(i=1;i<=args->n;i++)args->set[i-1] = i;                              // initaliise the main set.
         i=0;j=0;
@@ -106,30 +109,42 @@ int main(){
             printf("%d ",args->subsets[i][j]);
         printf("");
     }
-    printf("\nHitting Set1:\n");
-    for(int i=0;i<args->k;i++){
-         printf("%d ", set1[i]);
+    if(set1){
+        printf("\nHitting Set1:\n");
+        for(int i=0;i<args->k;i++){
+            printf("%d ", set1[i]);
+        }
+        free(set1);
     }
-    printf("\nHitting Set2:\n");
-    for(int i=0;i<args->k;i++){
-         printf("%d ", set2[i]);
+    if(set2){
+        printf("\nHitting Set2:\n");
+        for(int i=0;i<args->k;i++){
+            printf("%d ", set2[i]);
+        }
+        free(set2);
     }
-    printf("\nHitting Set3:\n");
-    for(int i=0;i<args->k;i++){
-         printf("%d ", set3[i]);
+    if(set3){
+        printf("\nHitting Set3:\n");
+        for(int i=0;i<args->k;i++){
+             printf("%d ", set3[i]);
+        }
+        free(set3);
     }
-    printf("\nHitting Set4:\n");
-    for(int i=0;i<args->k;i++){
-         printf("%d ", set4[i]);
+    if(set4){
+        printf("\nHitting Set4:\n");
+        for(int i=0;i<args->k;i++){
+            printf("%d ", set4[i]);
+        }
+        free(set4);
     }
     if(flag){
-        fclose(fp);
-        free(args);
+        for(int i =0;i<args->m;i++)
+            free(args->subsets[i]);
+        free(args->subsets);
+        free(args->set);
     }
-    free(set1);
-    free(set2);
-    free(set3);
-    free(set4);
+    fclose(fp);
+    free(args);
 }
 
 void* alg1(void* args){
@@ -199,7 +214,7 @@ void* alg4(void* args){
 int* algorithm1Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet){
     if(rtrnIndex>=k){
         // printf("Re: rtr %d m %d k %d\n", rtrnIndex, m, k);
-        if(isHittingSet(rtrnSet,subSets,m,c))
+        if(isHittingSet(rtrnSet,k,subSets,m,c))
             return rtrnSet;
         return NULL;
     }
@@ -244,7 +259,7 @@ int* algorithm1Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
 // [x] Find critical Number.
 int* algorithm2Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet){
     if(rtrnIndex>=k){
-        if(isHittingSet(rtrnSet,subSets,m,c))
+        if(isHittingSet(rtrnSet,k,subSets,m,c))
             return rtrnSet;
         return NULL;
     }
@@ -279,7 +294,7 @@ int* algorithm2Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
 // [x] Find smallest length subset..
 int* algorithm3Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet){
     if(rtrnIndex>=k){
-        if(isHittingSet(rtrnSet,subSets,m,c))
+        if(isHittingSet(rtrnSet,k,subSets,m,c))
             return rtrnSet;
         return NULL;
     }
@@ -308,9 +323,9 @@ int* algorithm3Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
             int *result = algorithm3Rec(n, clearArrays(subSets, randomElement, validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet);       // try to find the next element from what its left.
 
             if(result != NULL){
-                if(isHittingSet(result, subSets, m, c))
+                if(isHittingSet(result,k, subSets, m, c))
                     return result; // Found a valid hitting set
-                else return NULL;;
+                else return NULL;
             }
             //this means that the element didn't work
             rtrnSet[rtrnIndex] = 0; // Clear the element.
@@ -322,7 +337,7 @@ int* algorithm3Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
 }
 int* algorithm4Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet){
     if(rtrnIndex>=k){
-        if(isHittingSet(rtrnSet,subSets,m,c))
+        if(isHittingSet(rtrnSet,k,subSets,m,c))
             return rtrnSet;
         return NULL;
     }
@@ -349,8 +364,8 @@ int* algorithm4Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
             int *result = algorithm4Rec(n, clearArrays(subSets, criticalElement, validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet);       // try to find the next element from what its left.
 
             if(result!=NULL){
-                if(isHittingSet(result, subSets, m, c))
-                    return result;
+                if(isHittingSet(result,k, subSets, m, c))
+                    return result; // Found a valid hitting set
                 else return NULL;
             }
             validNumbers--;                                                                         // decrese the valid number, loop to find the next critical number.
@@ -379,17 +394,18 @@ the returned number will be 3
 */
 int length(int *arr, int size){
     int len = 0;
-    for(int i =0;i<size;i++){
-        if(arr[i]!=0) len++;                    // calculate the length of the array.
-        else return len;
+    for(int i = 0; i < size; i++){
+        if (arr[i] == 0) break;
+        len++;
     }
     return len;
 }
+
 /*
 This method, will check based on the subsets with the passed possible hitting set, is correct.
 */
-bool isHittingSet(int *hittingSet, int **subsets, int m, int c) {
-    int hittingSetLength = length(hittingSet,c);
+bool isHittingSet(int *hittingSet, int kSize, int **subsets, int m, int c) {
+    int hittingSetLength = length(hittingSet,kSize);
     for (int j = 0; j < m; j++) {                           // For each subset
         bool intersects = false;
         for (int x = 0; x < c; x++) {                       // Check if the subset has any element from the hitting set
