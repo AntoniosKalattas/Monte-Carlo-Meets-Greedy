@@ -39,7 +39,7 @@ void* alg4(void*);  //
 
 
 //Algorithm Implementation//////////////////////////////////////////////
-int* algorithm1Rec(int , int , int , int , int **, int , int *, int); //
+int* algorithm1Rec(int , int , int , int , int **, int , int *, int, int **); //
 int* algorithm2Rec(int , int , int , int , int **, int , int *, int); //
 int* algorithm3Rec(int , int , int , int , int **, int , int *, int); //
 int* algorithm4Rec(int , int , int , int , int **, int , int *, int); //
@@ -48,24 +48,33 @@ int* algorithm4Rec(int , int , int , int , int **, int , int *, int); //
 
 
 //Helper Methods//////////////////////////////////
-bool isHittingSet(int *,int, int **, int, int); //
 void printT(int **, int, int);                  //
 int length(int *, int);                         //
 int* swapArrays(int **,int,int);                //
 int swapNumbers(int*,int,int);                  //
 int clearArrays(int **, int, int,int, int);     //
-int criticalNumber(int *,int,int **,int,int);   //
+void criticalNumber(int *,int,int **,int,int);  //
 void disp(int *, int);                          //
 int smallerSubSet(int **,int,int);              //
 void stopThread(int);                           //
+void sortSubSets(int **, int , int);            //
+void mapCleaner(int **, int ,int, int, int**);   //
 //////////////////////////////////////////////////
 
-//BenchMarking Methods///////////////////////////
-void generateInstance();
-int randomNumberGen(int, int);
-Args* readBenchMark1();
-void runArgs(Args*);
 
+//BenchMarking Methods////////////////////////////
+void generateInstance();                        //
+int randomNumberGen(int, int);                  //
+Args* readBenchMark1();                         //
+void runArgs(Args*);                            //
+void runArgsAlternative(Args *);                //
+int benchMarkAlgo1(Args *);                     //
+int benchMarkAlgo2(Args *);                     //
+int benchMarkAlgo3(Args *);                     //
+int benchMarkAlgo4(Args *);                     //
+void freeArgs(Args* );                          //
+Args* copyArgs(Args*);                          //
+//////////////////////////////////////////////////
 
 int main(){
     srand(time(NULL));
@@ -74,7 +83,7 @@ int main(){
     if(flag){
         fp = fopen("test.dat", "r");
         if(fp==NULL){
-            perror("Faild to open file sets.dat");
+            perror("Faild to open file test.dat");
             return 0;
         }
         fscanf(fp, "%d %d %d %d",&args->n,&args->m,&args->c,&args->k);
@@ -102,85 +111,77 @@ int main(){
             j=0;
             }
         }
+        pthread_t t1, t2, t3, t4;
+        Args *args1 = copyArgs(args);
+        Args *args2 = copyArgs(args);
+        Args *args3 = copyArgs(args);
+        Args *args4 = copyArgs(args);
+        pthread_create(&t1, NULL, alg1, (void *)args1);
+        pthread_create(&t2, NULL, alg2, (void *)args2);
+        pthread_create(&t3, NULL, alg3, (void *)args3);
+        pthread_create(&t4, NULL, alg4, (void *)args4);
+        int *set1, *set2, *set3, *set4;
+        pthread_join(t1, (void **)&set1);
+        pthread_join(t2, (void **)&set2);
+        pthread_join(t3, (void **)&set3);
+        pthread_join(t4, (void **)&set4);
+
+        printf("A:{ ");for(int i=1;i<=args->n;i++) printf("%d ", i); printf("}");
+        for(int i =0;i<args->m;i++){
+            printf("\nB%d: ",i);
+            for(int j=0;j<args->c;j++)
+                printf("%d ",args->subsets[i][j]);
+            printf("");
+        }
+        if(set1){
+            printf("\nHitting Set from (1):\n");
+            for(int i=0;i<args->k;i++){
+                printf("%d ", set1[i]);
+            }
+            free(set1);
+        } else printf("\n (1): failed");
+        if(set2){
+            printf("\nHitting Set from (2):\n");
+            for(int i=0;i<args->k;i++){
+                printf("%d ", set2[i]);
+            }
+            free(set2);
+        } else printf("\n (2): failed");
+
+        if(set3){
+            printf("\nHitting Set from (3):\n");
+            for(int i=0;i<args->k;i++){
+                 printf("%d ", set3[i]);
+            }
+            free(set3);
+        } else printf("\n (3): failed");
+
+        if(set4){
+            printf("\nHitting Set from (4):\n");
+            for(int i=0;i<args->k;i++){
+                printf("%d ", set4[i]);
+            }
+            free(set4);
+        } else printf("\n (4): failed");
+
+        if(flag){
+            for(int i =0;i<args->m;i++)
+                free(args->subsets[i]);
+            free(args->subsets);
+            free(args->set);
+        }
+        free(args);
     }
     else{
-        //create random data.
-        // generateInstance();
         free(args);
         args = readBenchMark1();
         runArgs(args);
+        freeArgs(args);  // Add this line to free the args returned by readBenchMark1
         return 0;
     }
-
-    pthread_t t1, t2, t3, t4;
-    pthread_create(&t1, NULL, alg1, (void *)args);
-    pthread_create(&t2, NULL, alg2, (void *)args);
-    pthread_create(&t3, NULL, alg3, (void *)args);
-    pthread_create(&t4, NULL, alg4, (void *)args);
-    int *set1, *set2, *set3, *set4;
-    pthread_join(t1, (void **)&set1);
-    pthread_join(t2, (void **)&set2);
-    pthread_join(t3, (void **)&set3);
-    pthread_join(t4, (void **)&set4);
-
-    printf("A:{ ");for(int i=1;i<=args->n;i++) printf("%d ", i); printf("}");
-    for(int i =0;i<args->m;i++){
-        printf("\nB%d: ",i);
-        for(int j=0;j<args->c;j++)
-            printf("%d ",args->subsets[i][j]);
-        printf("");
-    }
-    if(set1){
-        printf("\nHitting Set from (1):\n");
-        for(int i=0;i<args->k;i++){
-            printf("%d ", set1[i]);
-        }
-        free(set1);
-    } else printf("\n (1): failed");
-    if(set2){
-        printf("\nHitting Set from (2):\n");
-        for(int i=0;i<args->k;i++){
-            printf("%d ", set2[i]);
-        }
-        free(set2);
-    } else printf("\n (2): failed");
-
-    if(set3){
-        printf("\nHitting Set from (3):\n");
-        for(int i=0;i<args->k;i++){
-             printf("%d ", set3[i]);
-        }
-        free(set3);
-    } else printf("\n (3): failed");
-
-    if(set4){
-        printf("\nHitting Set from (4):\n");
-        for(int i=0;i<args->k;i++){
-            printf("%d ", set4[i]);
-        }
-        free(set4);
-    } else printf("\n (4): failed");
-
-    if(flag){
-        for(int i =0;i<args->m;i++)
-            free(args->subsets[i]);
-        free(args->subsets);
-        free(args->set);
-    }
     fclose(fp);
-    free(args);
 }
 
-void stopThread(int signum){
-    if(signum==endThread1)
-        printf("Ending thread 1\n");
-    if(signum==endThread2)
-        printf("Ending thread 2\n");
-    if(signum==endThread3)
-        printf("Ending thread 3\n");
-    if(signum==endThread4)
-        printf("Ending thread 4\n");
-}
 void* alg1(void* args){
     Args *arg = (Args *)args;
     int **cpyArr = malloc(arg->m*sizeof(int*));                                                 //copy the array since we are going to be making changes to it.
@@ -192,21 +193,30 @@ void* alg1(void* args){
 
     time_t startTime = time(NULL);
     time_t endTime = startTime + 3600; // 1 hour = 3600 seconds
+    int **cleaningArr = (int **)(malloc(arg->n*sizeof(int *)));
+    for(int i =0;i<arg->n;i++){
+        cleaningArr[i]=malloc(sizeof(int)*arg->m);
+    }
+    mapCleaner(arg->subsets,arg->n,arg->m,arg->c, cleaningArr);
 
-    int *result = algorithm1Rec(arg->n, arg->m, arg->c, arg->k, cpyArr, 0, rtrnSet, endTime);
+    int *result = algorithm1Rec(arg->n, arg->m, arg->c, arg->k, cpyArr, 0, rtrnSet, endTime, cleaningArr);
 
     for(int i=0;i<arg->m;i++) free(cpyArr[i]);                                                  //free the allocated space.
     free(cpyArr);
-    free(rtrnSet);
-    if(time(NULL)>=endTime)
-        printf("(3) Timeout\n");
+    if(time(NULL)>=endTime){
+        printf("(1) Timeout\n");
+        free(rtrnSet);
+        return NULL;
+    }
+    if(result==NULL)
+        free(rtrnSet);
     return result;
 }
 void* alg2(void* args){
     Args *arg = (Args *)args;
-    int **cpyArr = malloc(arg->m*sizeof(int*));                                                 //copy the array since we are going to be making changes to it.
-    for(int i =0;i<arg->m;i++)cpyArr[i] = malloc(arg->c*sizeof(int));                           //allocate space.
-    for(int i=0;i<arg->m;i++){for(int j=0;j<arg->c;j++) cpyArr[i][j] = arg->subsets[i][j];}     //copy each element.
+    // int **cpyArr = malloc(arg->m*sizeof(int*));                                                 //copy the array since we are going to be making changes to it.
+    // for(int i =0;i<arg->m;i++)cpyArr[i] = malloc(arg->c*sizeof(int));                           //allocate space.
+    // for(int i=0;i<arg->m;i++){for(int j=0;j<arg->c;j++) cpyArr[i][j] = arg->subsets[i][j];}     //copy each element.
 
     int *rtrnSet = (int *)malloc(arg->k*sizeof(int));                                           //the returned hitting set.
     for(int i =0;i<arg->k;i++)rtrnSet[i] = 0;                                                   //set all to 0.
@@ -214,20 +224,24 @@ void* alg2(void* args){
     time_t startTime = time(NULL);
     time_t endTime = startTime + 3600; // 1 hour = 3600 seconds
 
-    int *result = algorithm1Rec(arg->n, arg->m, arg->c, arg->k, cpyArr, 0, rtrnSet, endTime);
+    int *result = algorithm2Rec(arg->n, arg->m, arg->c, arg->k, arg->subsets, 0, rtrnSet, endTime);
 
-    for(int i=0;i<arg->m;i++) free(cpyArr[i]);                                                  //free the allocated space.
-    free(cpyArr);
-    free(rtrnSet);
-    if(time(NULL)>=endTime)
-        printf("(3) Timeout\n");
+    // for(int i=0;i<arg->m;i++) free(cpyArr[i]);                                                  //free the allocated space.
+    // free(cpyArr);
+    if(time(NULL)>=endTime){
+        printf("(2) Timeout\n");
+        free(rtrnSet);
+        return NULL;
+    }
+    if(result==NULL)
+        free(rtrnSet);
     return result;
 }
 void* alg3(void* args){
     Args *arg = (Args *)args;
-    int **cpyArr = malloc(arg->m*sizeof(int*));                                                 //copy the array since we are going to be making changes to it.
-    for(int i =0;i<arg->m;i++)cpyArr[i] = malloc(arg->c*sizeof(int));                           //allocate space.
-    for(int i=0;i<arg->m;i++){for(int j=0;j<arg->c;j++) cpyArr[i][j] = arg->subsets[i][j];}     //copy each element.
+    // int **cpyArr = malloc(arg->m*sizeof(int*));                                                 //copy the array since we are going to be making changes to it.
+    // for(int i =0;i<arg->m;i++)cpyArr[i] = malloc(arg->c*sizeof(int));                           //allocate space.
+    // for(int i=0;i<arg->m;i++){for(int j=0;j<arg->c;j++) cpyArr[i][j] = arg->subsets[i][j];}     //copy each element.
 
     int *rtrnSet = (int *)malloc(arg->k*sizeof(int));                                           //the returned hitting set.
     for(int i =0;i<arg->k;i++)rtrnSet[i] = 0;                                                   //set all to 0.
@@ -235,20 +249,27 @@ void* alg3(void* args){
     time_t startTime = time(NULL);
     time_t endTime = startTime + 3600; // 1 hour = 3600 seconds
 
-    int *result = algorithm1Rec(arg->n, arg->m, arg->c, arg->k, cpyArr, 0, rtrnSet, endTime);
+    sortSubSets(arg->subsets, arg->m, arg->c);
+    // printT(cpyArr, arg->m, arg->c);
 
-    for(int i=0;i<arg->m;i++) free(cpyArr[i]);                                                  //free the allocated space.
-    free(cpyArr);
-    free(rtrnSet);
-    if(time(NULL)>=endTime)
+    int *result = algorithm3Rec(arg->n, arg->m, arg->c, arg->k, arg->subsets, 0, rtrnSet, endTime);
+
+    // for(int i=0;i<arg->m;i++) free(cpyArr[i]);                                                  //free the allocated space.
+    // free(cpyArr);
+    if(time(NULL)>=endTime){
         printf("(3) Timeout\n");
+        free(rtrnSet);
+        return NULL;
+    }
+    if(result==NULL)
+        free(rtrnSet);
     return result;
 }
 void* alg4(void* args){
     Args *arg = (Args *)args;
-    int **cpyArr = malloc(arg->m*sizeof(int*));                                                 //copy the array since we are going to be making changes to it.
-    for(int i =0;i<arg->m;i++)cpyArr[i] = malloc(arg->c*sizeof(int));                           //allocate space.
-    for(int i=0;i<arg->m;i++){for(int j=0;j<arg->c;j++) cpyArr[i][j] = arg->subsets[i][j];}     //copy each element.
+    // int **cpyArr = malloc(arg->m*sizeof(int*));                                                 //copy the array since we are going to be making changes to it.
+    // for(int i =0;i<arg->m;i++)cpyArr[i] = malloc(arg->c*sizeof(int));                           //allocate space.
+    // for(int i=0;i<arg->m;i++){for(int j=0;j<arg->c;j++) cpyArr[i][j] = arg->subsets[i][j];}     //copy each element.
 
     int *rtrnSet = (int *)malloc(arg->k*sizeof(int));                                           //the returned hitting set.
     for(int i =0;i<arg->k;i++)rtrnSet[i] = 0;                                                   //set all to 0.
@@ -256,18 +277,24 @@ void* alg4(void* args){
     time_t startTime = time(NULL);
     time_t endTime = startTime + 3600; // 1 hour = 3600 seconds
 
-    int *result = algorithm1Rec(arg->n, arg->m, arg->c, arg->k, cpyArr, 0, rtrnSet, endTime);
-    for(int i=0;i<arg->m;i++) free(cpyArr[i]);                                                  //free the allocated space.
-    free(cpyArr);
-    free(rtrnSet);
-    if(time(NULL)>=endTime)
-        printf("(3) Timeout\n");
+    sortSubSets(arg->subsets, arg->m, arg->c);
+
+    int *result = algorithm4Rec(arg->n, arg->m, arg->c, arg->k, arg->subsets, 0, rtrnSet, endTime);
+    //for(int i=0;i<arg->m;i++) free(cpyArr[i]);                                                  //free the allocated space.
+    //free(cpyArr);
+    if(time(NULL)>=endTime){
+        printf("(4) Timeout\n");
+        free(rtrnSet);
+        return NULL;
+    }
+    if(result==NULL)
+        free(rtrnSet);
     return result;
 }
 
-int* algorithm1Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet, int endTime){
-    if(m <= 0 && rtrnIndex<k) {
-        printf("no elements left1\n");
+int* algorithm1Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet, int endTime, int cleaner){
+    if(m <= 0 && rtrnIndex<=k) {
+        // printf("no elements left (1)\n");
         return rtrnSet;
     }
     if(rtrnIndex>=k)
@@ -295,7 +322,7 @@ int* algorithm1Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
 
         rtrnSet[rtrnIndex] = randomElement;                                 //add the element to the hitting set.
 
-        int *result = algorithm1Rec(n, clearArrays(subSets, randomElement, validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet, endTime);       // try to find the next element from what its left.
+        int *result = algorithm1Rec(n, , c, k, subSets, rtrnIndex + 1, rtrnSet, endTime);       // try to find the next element from what its left.
 
         if(result != NULL){
             return result;                                                  // Found a valid hitting set
@@ -306,7 +333,7 @@ int* algorithm1Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
 }
 
 int* algorithm2Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet, int endTime){
-    if(m<=0 && rtrnIndex<k)
+    if(m<=0 && rtrnIndex<=k)
         return rtrnSet;
     if(rtrnIndex>=k)
         return NULL;
@@ -321,13 +348,12 @@ int* algorithm2Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
 
     int *randomSet = swapArrays(subSets, random, validSubSets-1);                               //swap the randomly selected SUB-SET with the lowest one.
     int validNumbers = length(randomSet, c);
+    criticalNumber(randomSet, validNumbers, subSets, m, c);
     while(validNumbers>0){
-        int criticalIndex = criticalNumber(randomSet,validNumbers,subSets,validSubSets,c);      // find the critical number in the randomly selected subset.
+        swapNumbers(randomSet, 0, validNumbers-1);              // swap the most critical elemen, make it invalid
 
-        int criticalElement = swapNumbers(randomSet, criticalIndex, validNumbers-1);              // swap the most critical elemen, make it invalid.
-
-        rtrnSet[rtrnIndex] = criticalElement;                                                   //add the element to the hitting set.
-        int *result = algorithm2Rec(n, clearArrays(subSets, criticalElement, validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet, endTime);       // try to find the next element from what its left.
+        rtrnSet[rtrnIndex] = randomSet[0];                                                   //add the element to the hitting set.
+        int *result = algorithm2Rec(n, clearArrays(subSets, randomSet[0], validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet, endTime);       // try to find the next element from what its left.
 
         if(result!=NULL)
             return result;
@@ -337,7 +363,7 @@ int* algorithm2Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
 }
 
 int* algorithm3Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet, int endTime){
-    if(m==0 && rtrnIndex<k){
+    if(m==0 && rtrnIndex<=k){
         return rtrnSet;
     }
     if(rtrnIndex>=k)
@@ -348,13 +374,13 @@ int* algorithm3Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
 
 
     int validSubSets = m;
-    int numberOfSetsTried = validSubSets;
-    while(numberOfSetsTried>0){
+    int numberOfSetsTried = 0;
+
+    while(numberOfSetsTried<m){
         unsigned int seed = time(NULL) ^ (unsigned long)pthread_self();         //os based. If linux try "unsigned int seed = time(NULL) ^ pthread_self();"
         int random = (m>1)?(rand_r(&seed)%m):0;
 
-        int smallestSetIndex = smallerSubSet(subSets, validSubSets, c);         // find and choose the smallest in length subset.
-        int *smallestSet = subSets[smallestSetIndex];
+        int *smallestSet = subSets[0];
         random = rand_r(&seed) % (length(smallestSet, c));
 
         int validNumbers = length(smallestSet, c);
@@ -375,14 +401,14 @@ int* algorithm3Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
             }
             rtrnSet[rtrnIndex] = 0;                                             // Clear the element.
         }
-        swapArrays(subSets, smallestSetIndex,validSubSets-1);
-        numberOfSetsTried--;
+         swapArrays(subSets, 0,validSubSets-1);
+        numberOfSetsTried++;
     }
     return NULL;
 }
 
 int* algorithm4Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int *rtrnSet, int endTime){
-    if(m<=0 && rtrnIndex<k)
+    if(m<=0 && rtrnIndex<=k)
         return rtrnSet;
     if(rtrnIndex>=k)
         return NULL;
@@ -391,23 +417,20 @@ int* algorithm4Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
     if(currentTime>=endTime){return (int *)(-1);}
 
     int validSubSets = m;
-    int numberOfSetsTried = validSubSets;
-    while(numberOfSetsTried>0){
+    int numberOfSetsTried = 0;
+    while(numberOfSetsTried<m){
         unsigned int seed = time(NULL) ^ (unsigned long)pthread_self();         //os based. If linux try "unsigned int seed = time(NULL) ^ pthread_self();"
         int random = (m>1)?(rand_r(&seed)%m):0;
 
-        int smallestSetIndex = smallerSubSet(subSets, validSubSets, c);         // find and choose the smallest in length subset.
-        int *smallestSet = subSets[smallestSetIndex];
+        int *smallestSet = subSets[0];
         random = rand_r(&seed) % (length(smallestSet, c));
 
         int validNumbers = length(smallestSet, c);
         if(validNumbers<=0)
             return NULL;                                                        // No valid elements to choose from
-
+        criticalNumber(smallestSet, validNumbers, subSets, m, c);
         while(validNumbers>0){
-            int criticalIndex = criticalNumber(smallestSet,validNumbers,subSets,validSubSets,c);      // find the critical number in the randomly selected subset.
-
-            int criticalElement = swapNumbers(smallestSet, criticalIndex, validNumbers-1);              // swap the most critical elemen, make it invalid.
+            int criticalElement = swapNumbers(smallestSet, 0, validNumbers-1);              // swap the most critical elemen, make it invalid.
 
             rtrnSet[rtrnIndex] = criticalElement;                                                   //add the element to the hitting set.
             int *result = algorithm4Rec(n, clearArrays(subSets, criticalElement, validSubSets,m, c), c, k, subSets, rtrnIndex + 1, rtrnSet, endTime);       // try to find the next element from what its left.
@@ -417,8 +440,8 @@ int* algorithm4Rec(int n, int m, int c, int k, int **subSets, int rtrnIndex, int
             validNumbers--;                                                                         // decrese the valid number, loop to find the next critical number.
             rtrnSet[rtrnIndex] = 0;
         }
-        swapArrays(subSets, smallestSetIndex,validSubSets-1);
-        numberOfSetsTried--;
+        swapArrays(subSets, 0,validSubSets-1);
+        numberOfSetsTried++;
     }
     return NULL;
 }
@@ -446,26 +469,7 @@ int length(int *arr, int size){
     }
     return len;
 }
-/*
-This method, will check based on the subsets with the passed possible hitting set, is correct.
-*/
-bool isHittingSet(int *hittingSet, int kSize, int **subsets, int m, int c) {
-    int hittingSetLength = length(hittingSet,kSize);
-    for(int j=0;j<m;j++){                               // For each subset
-        bool intersects = false;
-        for(int x=0;x<c;x++){                           // Check if the subset has any element from the hitting set
-            for(int i=0;i<=kSize;i++){
-                if(hittingSet[i]==subsets[j][x] && hittingSet[i]!=0){
-                    intersects = true;
-                    break;
-                }
-            }
-            if(intersects) break;
-        }
-        if(!intersects) return false;                   // If this subset has no element from the hitting set, return false
-    }
-    return true;
-}
+
 // Given a 2D array, it will swap the bottom row with the current row (bottom row → lowest available row). It returns the array we just swapped(Randomly selected).
 int* swapArrays(int **arr, int cur, int dest){
     int *rtrnSet = arr[cur];                                       // randomly selected array.
@@ -480,25 +484,50 @@ int swapNumbers(int *arr, int cur, int dest){
     arr[dest] = temp;
     return temp;
 }
+void mapCleaner(int **arr, int n, int m, int c, int **cleaner){
+    for(int i=1;i<n;i++){
+        int j=0;
+        for(int x=0;x<m;x++){
+            for(int h=0;h<length(arr[x], c);h++){
+                if(arr[x][h]==i){
+                    cleaner[i][j]=x;
+                    break;
+                }
+            }
+            j++;
+        }
+    }
+}
 
-// This will swap the arrays that include the 'target' number with the botton ones. They return the new available subsets, number.
 int clearArrays(int **arr, int target, int validSubSets, int m, int c) {
+    // Early return if target is invalid or there are no valid subsets
+    if (target == 0 || validSubSets <= 0) return validSubSets;
+
     int validArrays = validSubSets;
     int i = 0;
-    while(i<validArrays && i<m){
-        bool found=false;
-        for(int j=0;j<c;j++)
-            if(arr[i][j]==target){
+
+    while (i < validArrays && i < m) {
+        bool found = false;
+        // Only search until we find the target or reach end
+        for (int j = 0; j < c && arr[i][j] != 0; j++) {
+            if (arr[i][j] == target) {
                 found = true;
                 break;
             }
-        if(found){
-            swapArrays(arr, i, validArrays - 1);    //Dont increment i because we need to check the new swapped array.
-            validArrays--;
         }
-        else
-            i++;                                    //if we didn't find the target.
+
+        if (found) {
+            // Only swap if not already at the position being swapped with
+            if (i != validArrays - 1) {
+                swapArrays(arr, i, validArrays - 1);
+            }
+            validArrays--;
+            // Don't increment i since we need to check the newly swapped array
+        } else {
+            i++; // Move to next array if target not found
+        }
     }
+
     return validArrays;
 }
 // Used to debug, will output the content of the given array.
@@ -507,7 +536,7 @@ void disp(int *arr, int c){
     printf("\n");
 }
 //Given a subSet will find and return the index of the most commond number to other subsets.
-int criticalNumber(int *arr, int lengthOfarr,int **subSets,int availableSubSets,int c){
+void criticalNumber(int *arr, int lengthOfarr,int **subSets,int availableSubSets,int c){
     // Track count of each element in arr.
     int *counts = (int*)malloc(length(arr,c)*sizeof(int));
     for(int i=0;i<length(arr,c);i++){
@@ -521,16 +550,22 @@ int criticalNumber(int *arr, int lengthOfarr,int **subSets,int availableSubSets,
             }
         }
     }
-
-    // Find element with highest count
-    int bestIndex = 0;
-    for(int i=1; i < length(arr,c); i++)
-        if(counts[i] > counts[bestIndex])
-            bestIndex=i;
+    for (int i = 0; i < lengthOfarr - 1; i++) {
+            for (int j = 0; j < lengthOfarr - i - 1; j++) {
+                if (counts[j] < counts[j + 1]) {
+                    // Swap arr values.
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                    // Swap corresponding counts.
+                    int temp2 = counts[j];
+                    counts[j] = counts[j + 1];
+                    counts[j + 1] = temp2;
+                }
+            }
+        }
     free(counts);
-    return bestIndex; // Return the critical number, not just its index
 }
-
 // This method, based on the given available to choose subsets will return the index of the smallest one.
 int smallerSubSet(int **subSets, int availableSubSets, int c){
     int smallestIndex=0;
@@ -544,31 +579,25 @@ int smallerSubSet(int **subSets, int availableSubSets, int c){
     return smallestIndex;
 }
 
-
-void generateInstance(){
-    FILE *fp = fopen("test1.dat", "w");
-    srand(time(NULL));
-    int n = rand()%20000;
-    int m = n/0.05;
-    int c = 15;
-    fprintf(fp,"%d %d %d\n", n,m,c);
-    for(int j=0;j<m;j++){
-        for(int i=0;i<c;i++)
-            fprintf(fp,"%d ", randomNumberGen(1,  20000));
-        fprintf(fp,"\n" );
+void sortSubSets(int **subSets, int m, int c) {
+    for(int i=0;i<m-1;i++){
+        for(int j=0;j<m-i-1;j++){
+            if(length(subSets[j],c)>length(subSets[j+1],c)){
+                int *temp = subSets[j];
+                subSets[j] = subSets[j+1];
+                subSets[j+1] = temp;
+            }
+        }
     }
-
-}
-int randomNumberGen(int min, int max){
-    return min+rand()%(max-min+1);
 }
 
 Args* readBenchMark1(){
+
     FILE *fp;
     Args *args = (Args *)malloc(sizeof(Args));
     fp = fopen("test1.dat", "r");
     if(fp==NULL){
-        perror("Faild to open file sets.dat");
+        perror("Faild to open file test1.dat");
         return 0;
     }
     fscanf(fp, "%d %d %d",&args->n,&args->m,&args->c);
@@ -601,76 +630,175 @@ Args* readBenchMark1(){
 }
 
 void runArgs(Args* args){
-    int *set1, *set2, *set3, *set4;
-    // printf("args n:%d m:%d c:%d k:%d\n", args->n, args->m, args->c, args->k);
-    int rtrnK[4] = {0};
-    for(int k =1;k<INT_MAX;k++){
-        printf("\n \ttrying k=%d\n", k);
-        if(rtrnK[0]!=0 && rtrnK[1]!=0 && rtrnK[2]!=0 && rtrnK[3]!=0){
-            printf("All done\n");
-            break;
-        }
+    pthread_t runAlg1, runAlg2, runAlg3, runAlg4;
+    Args *args1 = copyArgs(args);
+    Args *args2 = copyArgs(args);
+    Args *args3 = copyArgs(args);
+    Args *args4 = copyArgs(args);
+
+    pthread_create(&runAlg1, NULL, (void *)benchMarkAlgo1, (void *)args1);
+    pthread_create(&runAlg2, NULL, (void *)benchMarkAlgo2, (void *)args2);
+    pthread_create(&runAlg3, NULL, (void *)benchMarkAlgo3, (void *)args3);
+    pthread_create(&runAlg4, NULL, (void *)benchMarkAlgo4, (void *)args4);
+    int avgTime=0;
+    pthread_join(runAlg4, (void *)&avgTime);printf("avg time for algo 4: %d\n", (int)avgTime);
+    pthread_join(runAlg3, (void *)&avgTime);printf("avg time for algo 3: %d\n", (int)avgTime);
+    pthread_join(runAlg2, (void *)&avgTime);printf("avg time for algo 2: %d\n", (int)avgTime);
+    pthread_join(runAlg1, (void *)&avgTime);printf("avg time for algo 1: %d\n", (int)avgTime);
+}
+
+int benchMarkAlgo1(Args *args){
+    Args *arg = (Args *)args;
+    time_t startTime = time(NULL);
+    int *set1;
+    int timePerK[3] = {0};
+    int hit=0;
+    int k=13;
+    while(hit<3){
         args->k = k;
         for(int j=0;j<3;j++){
-            pthread_t t1, t2, t3, t4;
-            if(rtrnK[0]==0)
-                pthread_create(&t1, NULL, alg1, (void *)args);
-            if(rtrnK[1]==0)
-                pthread_create(&t2, NULL, alg2, (void *)args);
-            if(rtrnK[2]==0)
-                pthread_create(&t3, NULL, alg3, (void *)args);
-            if(rtrnK[3]==0)
-                pthread_create(&t4, NULL, alg4, (void *)args);
-            if(rtrnK[3]==0)
-                pthread_join(t4, (void **)&set4);
-            if(rtrnK[2]==0)
-                pthread_join(t3, (void **)&set3);
-            if(rtrnK[1]==0)
-                pthread_join(t2, (void **)&set2);
-            if(rtrnK[0]==0)
-                pthread_join(t1, (void **)&set1);
-
+            pthread_t t1;
+            pthread_create(&t1, NULL, alg1, (void *)args);
+            pthread_join(t1, (void **)&set1);
             if(set1){
+                timePerK[hit]=(int)(time(NULL)-startTime);
+                startTime = time(NULL);
+                hit++;
+                if(hit==3)
+                    break;
                 printf("\nHitting Set from (1):\n");
                 for(int i=0;i<args->k;i++){
                     printf("%d ", set1[i]);
-                    rtrnK[0] = k;
                 }
                 printf("alg1 %d \n", k);
-
+                free(set1);
             }
-            else printf("(1) failed\n");
-            if(set2){
-                printf("\n*****Hitting Set from (2):\n");
+            else printf("(1) failed k:%d\n", k);
+        }
+        k++;
+        if(hit==3)
+            break;
+    }
+
+    freeArgs(args);
+    return(timePerK[0]+timePerK[1]+timePerK[2])/3;
+}
+int benchMarkAlgo2(Args *args){
+    Args *arg = (Args *)args;
+    time_t startTime = time(NULL);
+    int *set1;
+    int timePerK[3] = {0};
+    int hit=0;
+    int k=13;
+    while(hit<3){
+        args->k = k;
+        for(int j=0;j<3;j++){
+            pthread_t t1;
+            pthread_create(&t1, NULL, alg2, (void *)args);
+            pthread_join(t1, (void **)&set1);
+            if(set1){
+                timePerK[hit]=(int)(time(NULL)-startTime);
+                startTime = time(NULL);
+                hit++;
+                printf("\nHitting Set from (2):\n");
                 for(int i=0;i<args->k;i++){
-                    printf("%d ", set2[i]);
-                    rtrnK[1] = k;
+                    printf("%d ", set1[i]);
                 }
                 printf("alg2 %d \n", k);
+                free(set1);
             }
-            else printf("(2)faild\n");
-            if(set3){
+            else printf("(2) failed k:%d\n", k);
+        }
+        k++;
+    }
+    freeArgs(args);
+    return(timePerK[0]+timePerK[1]+timePerK[2])/3;
+}
+int benchMarkAlgo3(Args *args){
+    Args *arg = (Args *)args;
+    time_t startTime = time(NULL);
+    int *set1;
+    int timePerK[3] = {0};
+    int hit=0;
+    int k=13;
+    while(hit<3){
+        args->k = k;
+        for(int j=0;j<3;j++){
+            pthread_t t1;
+            pthread_create(&t1, NULL, alg3, (void *)args);
+            pthread_join(t1, (void **)&set1);
+            if(set1){
+                timePerK[hit]=(int)(time(NULL)-startTime);
+                startTime = time(NULL);
+                hit++;
                 printf("\nHitting Set from (3):\n");
                 for(int i=0;i<args->k;i++){
-                     printf("%d ", set3[i]);
-                     rtrnK[2] = k;
+                    printf("%d ", set1[i]);
                 }
                 printf("alg3 %d \n", k);
+                free(set1);
             }
-            else printf("(3) failed\n");
-            if(set4){
-                printf("\nHitting Set from (4):\n");
+            else printf("(3) failed k: %d\n", k);
+        }
+        k++;
+    }
+
+    freeArgs(args);
+    return(timePerK[0]+timePerK[1]+timePerK[2])/3;
+}
+int benchMarkAlgo4(Args *args){
+    Args *arg = (Args *)args;
+    time_t startTime = time(NULL);
+    int *set1;
+    int timePerK[3] = {0};
+    int hit=0;
+    int k=13;
+    while(hit<3){
+        args->k = k;
+        for(int j=0;j<3;j++){
+            pthread_t t1;
+                pthread_create(&t1, NULL, alg4, (void *)args);
+            pthread_join(t1, (void **)&set1);
+            if(set1){
+                timePerK[hit]=(int)(time(NULL)-startTime);
+                startTime = time(NULL);
+                hit++;
+                printf("\nHitting Set from (4) k:%d:\n",k);
                 for(int i=0;i<args->k;i++){
-                    printf("%d ", set4[i]);
-                    rtrnK[3] = k;
+                    printf("%d ", set1[i]);
                 }
                 printf("alg4 %d \n", k);
+                free(set1);
             }
-            else printf("(4) failed\n");
+            else printf("(4) failed k:%d\n", k);
         }
+        k++;
     }
-    printf("\t k1:%d \t k2:%d \t k3:%d \t k4:%d \n",rtrnK[0], rtrnK[1],rtrnK[2], rtrnK[3]);
-    for(int i =0;i<args->m;i++)
+    freeArgs(args);
+    // printf("returning %d\n",(timePerK[0]+timePerK[1]+timePerK[2])/3);
+    return(timePerK[0]+timePerK[1]+timePerK[2])/3;
+}
+
+Args* copyArgs(Args* original) {
+    Args* copy = (Args*)malloc(sizeof(Args));
+    copy->n = original->n;
+    copy->m = original->m;
+    copy->c = original->c;
+    copy->k = original->k;
+
+    copy->set = malloc(copy->n * sizeof(int));
+    memcpy(copy->set, original->set, copy->n * sizeof(int));
+
+    copy->subsets = malloc(copy->m * sizeof(int*));
+    for(int i = 0; i < copy->m; i++) {
+        copy->subsets[i] = malloc(copy->c * sizeof(int));
+        memcpy(copy->subsets[i], original->subsets[i], copy->c * sizeof(int));
+    }
+    return copy;
+}
+
+void freeArgs(Args* args) {
+    for(int i = 0; i < args->m; i++)
         free(args->subsets[i]);
     free(args->subsets);
     free(args->set);
