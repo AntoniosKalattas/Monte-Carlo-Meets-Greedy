@@ -38,69 +38,105 @@ public class MainJ{
         }else{
             Args myArgs = new Args(); 
             readFile(myArgs, flag);
-            int k =1;
-            int[] hittingSet1;
-            myArgs.k = k;
-            // benchmark for algorithm 1.
-            while(true){
-                hittingSet1 = alg1(copyArgs(myArgs));
-                if(hittingSet1!=null)
-                    break;
-                k++;
-                myArgs.k = k;
-            }
-            String s="";
-            for(int i =0;i<hittingSet1.length;i++) s+=" "+hittingSet1[i];
-            fwrite("(1) k="+k + " and set is: " + s);
-
-            //Bench mark for algorithm 2.
-            k=1;
-            myArgs.k = k;
-            int[] hittingSet2;
-            while(true){
-                hittingSet2 = alg2(copyArgs(myArgs));
-                if(hittingSet2!=null)
-                    break;
-                k++;
-                myArgs.k = k;
-            }
-            s="";
-            for(int i =0;i<hittingSet2.length;i++) s+=" "+hittingSet2[i];
-            fwrite("(2) k="+k + " and set is: " + s);
-
-
-            // Benchmark for algorithm 3.
-            k=1;
-            myArgs.k = k;
-            int[] hittingSet3;
-            while(true){
-                hittingSet3 = alg3(copyArgs(myArgs));
-                if(hittingSet3!=null)
-                    break;
-                k++;
-                myArgs.k = k;
-            }
-            s="";
-            for(int i =0;i<hittingSet3.length;i++) s+=" "+hittingSet3[i];
-            fwrite("(3) k="+k + " and set is: " + s);
-
-            // Benchmark for algorithm 4.
-            k=1;
-            myArgs.k = k;
-            int[] hittingSet4;
-            while(true){
-                hittingSet4 = alg4(copyArgs(myArgs));
-                if(hittingSet4!=null)
-                    break;
-                k++;
-                myArgs.k = k;
-            }
-            s="";
-            for(int i =0;i<hittingSet4.length;i++) s+=" "+hittingSet4[i];
-            fwrite("(4) k="+k + " and set is: " + s);
-
+            runBenchMark(myArgs);
         }
-        
+             
+    }
+
+    public static void runBenchMark(Args args){
+        testAlg1(copyArgs(args));
+        testAlg2(copyArgs(args));
+        testAlg3(copyArgs(args));
+        testAlg4(copyArgs(args));
+    }
+    public static void testAlg1(Args args){
+        double avgT = 0;
+        for(int a=0;a<3;a++){
+            int k =1;
+            int[] hittingSet;
+            args.k = k;
+            while(true){
+                long startTime = System.nanoTime(); 
+                hittingSet = alg1(copyArgs(args));
+                long endTime = System.nanoTime();
+                if(hittingSet!=null && hittingSet[0]==-1){
+                    avgT+=endTime-startTime;
+                    break;
+                }
+                k++;
+                args.k = k;
+            }
+        }
+        avgT = avgT/3;
+        avgT = (avgT / 1_000_000_000.0);
+        fwrite("(1) Time Limit for  avg time: "+avgT, "averageTime");   
+    }
+
+    public static void testAlg2(Args args){
+        double avgT = 0;
+        for(int a=0;a<3;a++){
+            int k =1;
+            int[] hittingSet;
+            args.k = k;
+            while(true){
+                long startTime = System.nanoTime(); 
+                hittingSet = alg2(copyArgs(args));
+                long endTime = System.nanoTime();
+                if(hittingSet!=null && hittingSet[0]==-1){
+                    avgT+=endTime-startTime;
+                    break;
+                }
+                k++;
+                args.k = k;
+            }
+        }
+        avgT = avgT/3;
+        avgT = (avgT / 1_000_000_000.0);
+        fwrite("(2) Time Limit for  avg time: "+avgT, "averageTime");   
+    }
+    public static void testAlg3(Args args){
+        double avgT = 0;
+        for(int a=0;a<3;a++){
+            int k =1;
+            int[] hittingSet;
+            args.k = k;
+            while(true){
+                long startTime = System.nanoTime(); 
+                hittingSet = alg3(copyArgs(args));
+                long endTime = System.nanoTime();
+                if(hittingSet!=null && hittingSet[0]==-1){
+                    avgT+=endTime-startTime;
+                    break;
+                }
+                k++;
+                args.k = k;
+            }
+        }
+        avgT = avgT/3;
+        avgT = (avgT / 1_000_000_000.0);
+        fwrite("(3) Time Limit for  avg time: "+avgT, "averageTime");   
+    }
+    public static void testAlg4(Args args){
+        double avgT = 0;
+        for(int a=0;a<3;a++){
+            int k =1;
+            int[] hittingSet;
+            args.k = k;
+            while(true){
+                long startTime = System.nanoTime(); 
+                hittingSet = alg4(copyArgs(args));
+                long endTime = System.nanoTime();
+                if(hittingSet!=null && hittingSet[0]==-1){
+                    avgT+=endTime-startTime;
+                    break;
+                }
+                k++;
+                args.k = k;
+            }
+        }
+        avgT = avgT/3;
+        avgT = (avgT / 1_000_000_000.0);
+        fwrite("(4) Time Limit for  avg time: "+avgT, "averageTime");    
     }
 
     public static int readFile(Args args, boolean flag) {
@@ -155,6 +191,7 @@ public class MainJ{
         int result = algorithm1(args,map,valid,hittingSet,0,endTime);
         if(result ==-1){
             System.out.println("(1) Time limit");
+            return new int[]{-1};
         }
         if(result==0)
             System.out.println("(1) failed");
@@ -220,6 +257,7 @@ public class MainJ{
         int result = algorithm2(args,map,valid,hittingSet,0,endTime);
         if(result ==-1){
             System.out.println("(2) Time limit");
+            return new int[]{-1};
         }
         if(result==0)
             System.out.println("(2) failed");
@@ -290,6 +328,7 @@ public class MainJ{
         int result = algorithm3(args,map,valid,hittingSet,0,endTime);
         if(result ==-1){
             System.out.println("(3) Time limit");
+            return new int[]{-1};
         }
         if(result==0)
             System.out.println("(3) failed");
@@ -503,8 +542,8 @@ public class MainJ{
         }
     }
 
-    public static void fwrite(String output){
-        String outputPath = "output.txt";
+    public static void fwrite(String output, String fileName){
+        String outputPath = fileName+".txt";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath, true))) {
             writer.newLine();
             writer.write(output);
