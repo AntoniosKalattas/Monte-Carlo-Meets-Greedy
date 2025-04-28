@@ -1,4 +1,4 @@
-import java.io.BufferedReader;
+]import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -6,15 +6,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
-
-
-
 class Args{
     int n, m, c, k;
     int[] set;
     int[][] subsets;
 }
-
 
 public class MainJ{
     //FLAG////////////////////////
@@ -39,8 +35,7 @@ public class MainJ{
             Args myArgs = new Args(); 
             readFile(myArgs, flag);
             runBenchMark(myArgs);
-        }
-             
+        }     
     }
 
     public static void runBenchMark(Args args){
@@ -50,93 +45,116 @@ public class MainJ{
         testAlg4(copyArgs(args));
     }
     public static void testAlg1(Args args){
-        double avgT = 0;
-        for(int a=0;a<3;a++){
-            int k =1;
-            int[] hittingSet;
-            args.k = k;
-            while(true){
+        boolean TIME_LIMIT = false;
+        int k =1;
+        int[] hittingSet;
+        args.k = k;
+        while(!TIME_LIMIT){
+            double avgT = 0;
+            for(int a=0;a<3;a++){
                 long startTime = System.nanoTime(); 
                 hittingSet = alg1(copyArgs(args));
                 long endTime = System.nanoTime();
                 if(hittingSet!=null && hittingSet[0]==-1){
-                    avgT+=endTime-startTime;
+                    fwrite("(1) Time Limit for k "+k, "averageTime");  
+                    TIME_LIMIT=true;
                     break;
                 }
-                k++;
-                args.k = k;
+                avgT+=endTime-startTime;
             }
+            if(TIME_LIMIT)
+                break;
+            avgT = avgT/3;
+            avgT = (avgT / 1_000_000_000.0);
+            fwrite("(1) avg time: "+avgT+ " and k:"+ k, "averageTime");   
+            k++;
+            args.k = k;            
         }
-        avgT = avgT/3;
-        avgT = (avgT / 1_000_000_000.0);
-        fwrite("(1) Time Limit for  avg time: "+avgT, "averageTime");   
+         
     }
-
+    
     public static void testAlg2(Args args){
-        double avgT = 0;
-        for(int a=0;a<3;a++){
-            int k =1;
-            int[] hittingSet;
-            args.k = k;
-            while(true){
+        boolean TIME_LIMIT = false;
+        int k =1;
+        int[] hittingSet;
+        args.k = k;
+        while(!TIME_LIMIT){
+            double avgT = 0;
+            for(int a=0;a<3;a++){
                 long startTime = System.nanoTime(); 
                 hittingSet = alg2(copyArgs(args));
                 long endTime = System.nanoTime();
                 if(hittingSet!=null && hittingSet[0]==-1){
-                    avgT+=endTime-startTime;
+                    fwrite("(2) Time Limit for k "+k, "averageTime");  
+                    TIME_LIMIT=true;
                     break;
                 }
-                k++;
-                args.k = k;
+                avgT+=endTime-startTime;
             }
+            if(TIME_LIMIT)
+                break;
+            avgT = avgT/3;
+            avgT = (avgT / 1_000_000_000.0);
+            fwrite("(2) avg time: "+avgT+ " and k:"+ k, "averageTime");   
+            k++;
+            args.k = k;            
         }
-        avgT = avgT/3;
-        avgT = (avgT / 1_000_000_000.0);
-        fwrite("(2) Time Limit for  avg time: "+avgT, "averageTime");   
     }
+    
     public static void testAlg3(Args args){
-        double avgT = 0;
-        for(int a=0;a<3;a++){
-            int k =1;
-            int[] hittingSet;
-            args.k = k;
-            while(true){
+        boolean TIME_LIMIT = false;
+        int k =1;
+        int[] hittingSet;
+        args.k = k;
+        while(!TIME_LIMIT){
+            double avgT = 0;
+            for(int a=0;a<3;a++){
                 long startTime = System.nanoTime(); 
                 hittingSet = alg3(copyArgs(args));
                 long endTime = System.nanoTime();
                 if(hittingSet!=null && hittingSet[0]==-1){
-                    avgT+=endTime-startTime;
+                    fwrite("(3) Time Limit for k "+k, "averageTime");  
+                    TIME_LIMIT=true;
                     break;
                 }
-                k++;
-                args.k = k;
+                avgT+=endTime-startTime;
             }
+            if(TIME_LIMIT)
+                break;
+            avgT = avgT/3;
+            avgT = (avgT / 1_000_000_000.0);
+            fwrite("(3) avg time: "+avgT+ " and k:"+ k, "averageTime");   
+            k++;
+            args.k = k;            
         }
-        avgT = avgT/3;
-        avgT = (avgT / 1_000_000_000.0);
-        fwrite("(3) Time Limit for  avg time: "+avgT, "averageTime");   
     }
+    
     public static void testAlg4(Args args){
-        double avgT = 0;
-        for(int a=0;a<3;a++){
-            int k =1;
-            int[] hittingSet;
-            args.k = k;
-            while(true){
+        boolean TIME_LIMIT = false;
+        int k =1;
+        int[] hittingSet;
+        args.k = k;
+        while(!TIME_LIMIT){
+            double avgT = 0;
+            for(int a=0;a<3;a++){
                 long startTime = System.nanoTime(); 
                 hittingSet = alg4(copyArgs(args));
                 long endTime = System.nanoTime();
                 if(hittingSet!=null && hittingSet[0]==-1){
-                    avgT+=endTime-startTime;
+                    fwrite("(4) Time Limit for k "+k, "averageTime");  
+                    TIME_LIMIT=true;
                     break;
                 }
-                k++;
-                args.k = k;
+                avgT+=endTime-startTime;
             }
-        }
-        avgT = avgT/3;
-        avgT = (avgT / 1_000_000_000.0);
-        fwrite("(4) Time Limit for  avg time: "+avgT, "averageTime");    
+            if(TIME_LIMIT)
+                break;
+            avgT = avgT/3;
+            avgT = (avgT / 1_000_000_000.0);
+            fwrite("(4) avg time: "+avgT+ " and k:"+ k, "averageTime");   
+            k++;
+            args.k = k;            
+        }   
     }
 
     public static int readFile(Args args, boolean flag) {
