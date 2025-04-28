@@ -3,8 +3,8 @@
 Both C and Java implementations
 
 
-# C Implementaiton
-Due to lack of debugging and problems while benchmarking, and defeculties in performance enhancing, desided to drop it, and start over in java.
+## C Implementation
+Due to a lack of debugging tools, problems encountered during benchmarking, and difficulties in performance optimization, I decided to drop it and start over in Java.
 
 
 
