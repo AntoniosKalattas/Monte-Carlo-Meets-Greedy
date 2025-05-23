@@ -1,96 +1,114 @@
-# epl236project
-Both C and Java implementations
+# EPL236 Project – Hitting Set Problem
 
-
-## C Implementation
-Due to a lack of debugging tools, problems encountered during benchmarking, and difficulties in performance optimization, I decided to drop it and start over in Java.
-
-
-## Experimental Evaluation
-
-### Experiment 1
-
-#### Input Conditions
-
-To make the algorithm struggle in finding a hitting set and evaluate its performance with difficult inputs, the input must meet the following:
-
-- **Large Value Range (N):** Subsets should have minimal overlap. A large N ensures many unique elements across subsets.
-- **Small Subset Size (C):** Keeps overlap low; elements are less likely to appear in multiple subsets.
-- **Small Number of Subsets (M):** Fewer subsets reduce overlap and increase challenge.
-
-#### Experiment 1 Results
-N = 5000	M = 10000	C = 5
-![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image2.png)
-
-N = 1000	M = 5000	c = 3
-![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image1.png)
-
-#### Observations and Conclusions
-
-- For small `k`, all algorithms terminate immediately.
-- **Algorithm 1** performs the worst overall.
-- For `k > 8–9`, **Algorithms 1 and 2** experience exponential growth in runtime.
-- **Algorithm 4**, which combines 2 and 3, performs better than 1 and 2 but eventually also fails to terminate.
-- **Algorithm 3** is the best, maintaining linear time until very large `k`, where others fail.
-
-##### Summary:
-- For small `k`, the algorithm choice is insignificant.
-- For large `k`, **Algorithm 3** is the fastest.
-- **Algorithms 2 and 4** have smart strategies but high costs due to critical element selection.
+This project explores multiple algorithmic strategies to solve the **Hitting Set Problem**, implemented in both **C** and **Java**. The emphasis is on evaluating performance under challenging input conditions.
 
 ---
 
-### Prediction Comparison (a)
+## 🔧 Implementations
 
-- **Algorithm 1:** As predicted, the slowest and least strategic.
-- **Algorithm 2:** Expected to be much faster than 1, but not as large a difference as expected.
-- **Algorithm 3:** Proven highly efficient for large M — performs excellently until mid `k`.
-- **Algorithm 4:** Expected to be the fastest due to its combined strategy, but practical costs reduced its efficiency.
+### 🧵 C Version (Abandoned)
+Initial implementation in C was halted due to:
+- Limited debugging tools
+- Performance bottlenecks
+- Optimization challenges
 
----
-
-
-
-
-### Experiment 2
-
-#### Input Conditions
-
-The input must have a hitting set that’s hard to detect:
-
-- **Large Value Range (N):** Reduces likelihood of elements repeating across subsets but shouldn't be too large.
-- **Large Number of Subsets (M):** Increases search space complexity.
-- **Small Subset Size (C):** Decreases element overlap, increases possible hitting set combinations.
-
-#### Experiment 2 Results
-N =100		M = 500	C = 4		k=50
-![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image3.png)
-N =400		M = 300	C = 10		K=49
-![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image4.png)
-
-#### Observations and Conclusions
-
-- **Algorithm 1:** Very high variability, unreliable; random selection is ineffective.
-- **Algorithm 2:** Stable, fast; frequency-based selection is highly effective.
-- **Algorithm 3:** Slower despite strategy; selecting the smallest subset is computationally cheap but hampers solution discovery.
-- **Algorithm 4:** Best overall; fastest and most consistent.
-
-##### Summary:
-- **Algorithm 1**: Unreliable, could take seconds or hours.
-- **Algorithm 2**: Fast and stable, slightly slower than 4.
-- **Algorithm 3**: Consistent but slow.
-- **Algorithm 4**: Best in speed and reliability — recommended for large, complex instances.
+### ☕ Java Version
+A full reimplementation in Java was carried out for better control over debugging and performance benchmarking.
 
 ---
 
-### Prediction Comparison (a)
+## 📊 Experimental Evaluation
 
-- **Algorithm 1:** As predicted, highly variable and unreliable.
-- **Algorithm 2:** Confirmed to effectively reduce search space with frequency-based selection.
-- **Algorithm 3:** Overestimated; selecting smallest subset doesn't ensure fast solution.
-- **Algorithm 4:** As expected, combines strengths of 2 and 3 for optimal performance regardless of input size or complexity.
+### 🧪 Experiment 1 – Challenging Inputs
 
+#### 🔢 Input Conditions
+- **N (value range):** Large – ensures low overlap among subsets
+- **C (subset size):** Small – minimizes shared elements
+- **M (number of subsets):** Small – increases uniqueness of elements across subsets
 
+#### 📈 Results
 
+**N = 5000, M = 10000, C = 5**
+![Experiment 1 - Set A](https://raw.githubusercontent.com/AntoniosKalattas/epl236project/main/images/image2.png)
 
+**N = 1000, M = 5000, C = 3**
+![Experiment 1 - Set B](https://raw.githubusercontent.com/AntoniosKalattas/epl236project/main/images/image1.png)
 
+#### 🧠 Observations
+- All algorithms are fast for small `k`.
+- **Algorithm 1** is consistently the slowest.
+- **Algorithms 1 & 2** suffer from exponential time increase after `k > 8–9`.
+- **Algorithm 3** is the most efficient, scaling linearly up to high `k`.
+- **Algorithm 4** (hybrid strategy) balances performance but eventually degrades.
+
+#### ✅ Summary
+- Algorithm choice is irrelevant for small `k`.
+- For large `k`, **Algorithm 3** is best.
+- **Algorithm 2 & 4** are theoretically smarter, but practically slower due to costly decision-making.
+
+---
+
+### 🔮 Prediction vs. Reality
+
+| Algorithm | Prediction | Result |
+|----------|------------|--------|
+| Algorithm 1 | Slowest | ✔ Confirmed |
+| Algorithm 2 | Much faster than 1 | ❗ Difference was smaller than expected |
+| Algorithm 3 | Best for large M | ✔ Proven highly efficient |
+| Algorithm 4 | Fastest overall | ❗ Strategy costs slowed it down |
+
+---
+
+### 🧪 Experiment 2 – Hard-to-Find Solutions
+
+#### 🔢 Input Conditions
+- **N:** Large, but not extreme – balances uniqueness and complexity
+- **M:** Large – increases search space
+- **C:** Small – reduces overlap
+
+#### 📈 Results
+
+**N = 100, M = 500, C = 4, k = 50**
+![Experiment 2 - Set A](https://raw.githubusercontent.com/AntoniosKalattas/epl236project/main/images/image3.png)
+
+**N = 400, M = 300, C = 10, k = 49**
+![Experiment 2 - Set B](https://raw.githubusercontent.com/AntoniosKalattas/epl236project/main/images/image4.png)
+
+#### 🧠 Observations
+- **Algorithm 1:** Unpredictable, high variance
+- **Algorithm 2:** Fast and consistent; best pruning strategy
+- **Algorithm 3:** Slow but stable
+- **Algorithm 4:** Overall best; optimal balance of speed and stability
+
+#### ✅ Summary
+- **Algorithm 1:** Unstable – avoid
+- **Algorithm 2:** Fast and good, but not the best
+- **Algorithm 3:** Reliable but slow
+- **Algorithm 4:** Top performer – handles large, complex cases well
+
+---
+
+### 🔮 Prediction vs. Reality
+
+| Algorithm | Prediction | Result |
+|----------|------------|--------|
+| Algorithm 1 | High variance | ✔ Confirmed |
+| Algorithm 2 | Effective pruning | ✔ Confirmed |
+| Algorithm 3 | Ideal for big inputs | ❗ Overestimated |
+| Algorithm 4 | Optimal hybrid | ✔ Confirmed |
+
+---
+
+## 📁 Repository Structure
+
+```plaintext
+├── java/
+│   └── Main.java
+├── c/
+│   └── main.c (legacy)
+├── images/
+│   ├── image1.png
+│   ├── image2.png
+│   ├── image3.png
+│   └── image4.png
+└── README.md
