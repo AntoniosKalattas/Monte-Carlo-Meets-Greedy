@@ -19,8 +19,10 @@ To make the algorithm struggle in finding a hitting set and evaluate its perform
 - **Small Number of Subsets (M):** Fewer subsets reduce overlap and increase challenge.
 
 #### Experiment 1 Results
-
+N = 5000	M = 10000	C = 5
 ![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image2.png)
+
+N = 1000	M = 5000	c = 3
 ![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image1.png)
 
 #### Observations and Conclusions
@@ -61,9 +63,9 @@ The input must have a hitting set that’s hard to detect:
 - **Small Subset Size (C):** Decreases element overlap, increases possible hitting set combinations.
 
 #### Experiment 2 Results
-
+N =100		M = 500	C = 4		k=50
 ![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image3.png)
-
+N =400		M = 300	C = 10		K=49
 ![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image4.png)
 
 #### Observations and Conclusions
