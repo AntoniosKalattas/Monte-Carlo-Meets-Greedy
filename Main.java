@@ -17,7 +17,7 @@ class Args{
     int[][] subsets;
 }
 
-public class MainJ{
+public class Main{
     //FLAG////////////////////////
     static boolean flag = true;//
     //////////////////////////////
