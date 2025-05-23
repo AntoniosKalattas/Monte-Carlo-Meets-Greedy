@@ -69,10 +69,10 @@ A full reimplementation in Java was carried out for better control over debuggin
 #### 📈 Results
 
 **N = 100, M = 500, C = 4, k = 50**
-![Experiment 2 - Set A](https://raw.githubusercontent.com/AntoniosKalattas/epl236project/main/images/image3.png)
+![Experiment 2 - Set A](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image3.png)
 
 **N = 400, M = 300, C = 10, k = 49**
-![Experiment 2 - Set B](https://raw.githubusercontent.com/AntoniosKalattas/epl236project/main/images/image4.png)
+![Experiment 2 - Set B](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image4.png)
 
 #### 🧠 Observations
 - **Algorithm 1:** Unpredictable, high variance
