@@ -1,4 +1,6 @@
 # epl236project
+![Logo](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image5.png)
+
 
 Both C and Java implementations
 
@@ -22,6 +24,7 @@ To make the algorithm struggle in finding a hitting set and evaluate its perform
 #### Experiment 1 Results
 
 ![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image2.png)
+![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image1.png)
 
 #### Observations and Conclusions
 
@@ -60,7 +63,11 @@ The input must have a hitting set that’s hard to detect:
 - **Large Number of Subsets (M):** Increases search space complexity.
 - **Small Subset Size (C):** Decreases element overlap, increases possible hitting set combinations.
 
-#### Experiment 1 Results
+#### Experiment 2 Results
+
+![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image3.png)
+
+![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image4.png)
 
 #### Observations and Conclusions
 
