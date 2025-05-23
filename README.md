@@ -1,8 +1,4 @@
 # epl236project
-![Logo](https://raw.githubusercontent.com/AntoniosKalattas/epl236project/main/images/image5.png)
-
-
-
 Both C and Java implementations
 
 
