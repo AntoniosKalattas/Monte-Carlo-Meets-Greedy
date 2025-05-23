@@ -21,7 +21,7 @@ To make the algorithm struggle in finding a hitting set and evaluate its perform
 
 #### Experiment 1 Results
 
-
+![Alt text](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image2.png)
 
 #### Observations and Conclusions
 
