@@ -1,4 +1,4 @@
-# EPL236 Project – Hitting Set Problem
+# Monte Carlo Meets Greedy: Performance Analysis on Hitting Set Algorithms
 
 This project explores multiple algorithmic strategies to solve the **Hitting Set Problem**, implemented in both **C** and **Java**. The emphasis is on evaluating performance under challenging input conditions.
 
