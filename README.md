@@ -29,10 +29,10 @@ A full reimplementation in Java was carried out for better control over debuggin
 #### 📈 Results
 
 **N = 5000, M = 10000, C = 5**
-![Experiment 1 - Set A](https://raw.githubusercontent.com/AntoniosKalattas/epl236project/main/images/image2.png)
+![Experiment 1 - Set A](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image2.png)
 
 **N = 1000, M = 5000, C = 3**
-![Experiment 1 - Set B](https://raw.githubusercontent.com/AntoniosKalattas/epl236project/main/images/image1.png)
+![Experiment 1 - Set B](https://github.com/AntoniosKalattas/epl236project/blob/main/images/image1.png)
 
 #### 🧠 Observations
 - All algorithms are fast for small `k`.
